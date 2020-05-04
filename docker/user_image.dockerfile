@@ -51,7 +51,8 @@ RUN sudo apt -y install \
   swig \
   xxd \
   wget \
-  vim
+  vim \
+  libssl-dev
 
 RUN sudo apt -y install gcc-6 g++-6 && \
     sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 20 && \
@@ -59,18 +60,10 @@ RUN sudo apt -y install gcc-6 g++-6 && \
 
 RUN cd /home/developer && sudo apt install git -y && git clone https://github.com/stitchEm/stitchEm.git .
 
-RUN sudo apt install vim -y
-
-RUN sudo apt install libssl-dev -y
-
 RUN cd /home/developer && wget https://github.com/Kitware/CMake/releases/download/v3.17.2/cmake-3.17.2.tar.gz && \
     tar -xvf cmake-3.17.2.tar.gz && cd cmake-3.17.2 && ./bootstrap && make && sudo make install
 
-RUN sudo apt install nvidia-opencl-dev libnvidia-decode-440 -y
-
-# RUN sudo mkdir /home/cuda && sudo chmod 777 /home/cuda && cd /home/cuda && wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda-repo-ubuntu1604-8-0-local-ga2_8.0.61-1_amd64-deb
-
-RUN cd /home/developer && cmake -DGPU_BACKEND_CUDA=ON -DGPU_BACKEND_OPENCL=OFF -G Ninja  . && \
+RUN cd /home/developer && cmake -DGPU_BACKEND_CUDA=ON -DRTMP_NVENC=OFF -DGPU_BACKEND_OPENCL=OFF -G Ninja  . && \
     ninja
 
 # docker build --tag stitchem/stitchem-cuda-user:latest --file user_image.dockerfile .
