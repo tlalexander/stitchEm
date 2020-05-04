@@ -68,6 +68,8 @@ RUN cd /home/developer && wget https://github.com/Kitware/CMake/releases/downloa
 
 RUN sudo apt install nvidia-opencl-dev libnvidia-decode-440 -y
 
+# RUN sudo mkdir /home/cuda && sudo chmod 777 /home/cuda && cd /home/cuda && wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda-repo-ubuntu1604-8-0-local-ga2_8.0.61-1_amd64-deb
+
 RUN cd /home/developer && cmake -DGPU_BACKEND_CUDA=ON -DGPU_BACKEND_OPENCL=OFF -G Ninja  . && \
     ninja
 
