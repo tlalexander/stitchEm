@@ -1,9 +1,9 @@
-#FROM stitchem/stitchem-cudax:latest
-FROM nvidia/cudagl:10.2-devel
+FROM nvidia/cuda:10.2-devel-ubuntu18.04
 
-RUN apt update && apt install sudo
+RUN apt update && apt install sudo -y
 
-# Replace 1000 with your user / group id
+# http://fabiorehm.com/blog/2014/09/11/running-gui-apps-with-docker/
+# NOTE! If your uid is not 1000, update uid and gid below. echo ${UID} to check
 RUN export uid=1000 gid=1000 && \
     sudo mkdir -p /home/developer && \
     echo "developer:x:${uid}:${gid}:Developer,,,:/home/developer:/bin/bash" >> /etc/passwd && \
@@ -49,34 +49,27 @@ RUN sudo apt -y install \
   qtmultimedia5-dev \
   qttools5-dev \
   swig \
+  xxd \
   wget \
-  xxd
+  vim
 
 RUN sudo apt -y install gcc-6 g++-6 && \
     sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 20 && \
     sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 20
 
-RUN sudo apt -y install git cmake
+RUN cd /home/developer && sudo apt install git -y && git clone https://github.com/stitchEm/stitchEm.git .
 
-
-RUN cd /home/developer && git clone https://github.com/stitchEm/stitchEm.git .
+RUN sudo apt install vim -y
 
 RUN sudo apt install libssl-dev -y
 
 RUN cd /home/developer && wget https://github.com/Kitware/CMake/releases/download/v3.17.2/cmake-3.17.2.tar.gz && \
     tar -xvf cmake-3.17.2.tar.gz && cd cmake-3.17.2 && ./bootstrap && make && sudo make install
 
- #&& \
-  #  cmake -DGPU_BACKEND_CUDA=ON -DGPU_BACKEND_OPENCL=ON -G Ninja  stitchEm && \
-  #  ninja
+RUN sudo apt install nvidia-opencl-dev libnvidia-decode-440 -y
 
-RUN sudo apt install clang
-
-# RUN cd /home/developer && cmake -DGPU_BACKEND_CUDA=ON -DGPU_BACKEND_OPENCL=ON -G Ninja  . && \
- #  ninja
-
-RUN cd /home/developer && cmake -DGPU_BACKEND_CUDA=OFF -DGPU_BACKEND_OPENCL=ON -G Ninja . && \
-ninja
+RUN cd /home/developer && cmake -DGPU_BACKEND_CUDA=ON -DGPU_BACKEND_OPENCL=OFF -G Ninja  . && \
+    ninja
 
 # docker build --tag stitchem/stitchem-cuda-user:latest --file user_image.dockerfile .
 # docker run --gpus all -i -t -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix  stitchem/stitchem-cuda-user:latest bash
